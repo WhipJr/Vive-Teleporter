@@ -222,20 +222,22 @@ public class ViveNavMesh : MonoBehaviour
         dir /= dist;
         if(Physics.Raycast(p1, dir, out hit, dist, _IgnoreLayerMask ? ~_LayerMask : _LayerMask, (QueryTriggerInteraction) _QueryTriggerInteraction))
         {
-            normal = hit.normal;
-            if (Vector3.Dot(Vector3.up, hit.normal) < 0.99f && _IgnoreSlopedSurfaces)
-            {
-                pointOnNavmesh = false;
+            if (!hit.collider.isTrigger) { 
+                normal = hit.normal;
+                if (Vector3.Dot(Vector3.up, hit.normal) < 0.99f && _IgnoreSlopedSurfaces)
+                {
+                    pointOnNavmesh = false;
+                    hitPoint = hit.point;
+
+                    return true;
+                }
+
                 hitPoint = hit.point;
-                
+                NavMeshHit navHit;
+                pointOnNavmesh = NavMesh.SamplePosition(hitPoint, out navHit, _SampleRadius, _NavAreaMask);
+
                 return true;
             }
-
-            hitPoint = hit.point;
-            NavMeshHit navHit;
-            pointOnNavmesh = NavMesh.SamplePosition(hitPoint, out navHit, _SampleRadius, _NavAreaMask);
-
-            return true;
         }
         pointOnNavmesh = false;
         hitPoint = Vector3.zero;
